@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "check-consul-dns-<%= svc %>": {
+      "aggregate": true,
+      "command": "check-dns.rb --domain <%= svc %>.service.consul",
+      "interval": 60,
+      "subscribers": ["roundrobin:sensu-checker"],
+      "refresh": 86400,
+      "handlers": <% if svc.include?('production') %> ["production"] <% else %>["staging"]<% end %>,
+      "source": "<%= svc %>.service"
+    }
+  }
+}
