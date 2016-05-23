@@ -8,7 +8,7 @@ module SensuGenerator
     end
 
     def touch
-      logger.info "Trigger was touched"
+      logger.info "Touch trigger!"
       @previous = @last
       @last = Time.now.to_i
     end

@@ -33,7 +33,7 @@ module SensuGenerator
                           )
 
                 file = File.open(dest, 'w+')
-                file.write(result)
+                file.write(JSON.pretty_generate(result))
                 file.close
 
                 @trigger.touch if result

@@ -35,9 +35,9 @@ module SensuGenerator
           server.sync &&
           server.restart &&
           servers_updated << server.address
-          
+
           if servers_updated.size == @servers.size && @servers.index(server) == (@servers.size - 1)
-            trigger.clear
+            @trigger.clear
           else
             fail RestarterError.new("Could not synchronize or restart #{@servers - servers_updated.join(',')}")
           end
