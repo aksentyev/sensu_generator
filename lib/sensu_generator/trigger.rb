@@ -1,14 +1,16 @@
 module SensuGenerator
-  class Trigger
+  class Trigger < Application
     attr_reader :last, :previous
 
     def initialize
-      @last = touch
+      @previous = Time.now.to_i
+      @last     = Time.now.to_i
     end
 
     def touch
-      @last = Time.now.to_i
+      logger.info "Trigger was touched"
       @previous = @last
+      @last = Time.now.to_i
     end
 
     def difference_between_touches
@@ -20,7 +22,8 @@ module SensuGenerator
     end
 
     def clear
-      @previous = @last
+      @previous = 0
+      @last     = 0
     end
 
     def modified_since_last_update?

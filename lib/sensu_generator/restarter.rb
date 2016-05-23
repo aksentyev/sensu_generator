@@ -3,10 +3,10 @@ require 'rsync'
 
 module SensuGenerator
   class Restarter
-    @delay = 0
-    @delay_inc = 600
-
-    def initialize(logger: Application.logger, trigger:, servers:)
+    def initialize(logger: Application.logger, trigger:, servers:, config:)
+      @delay = 0
+      @delay_inc = 600
+      @config = config
       @trigger = trigger
       @servers = servers
       @logger = logger
@@ -18,46 +18,41 @@ module SensuGenerator
 
       @servers.each do |server|
         begin
-          if @servers.size < 2
-            msg = "Sensu-servers count < 2. Restart will not be performed. Next try after #{@@delay + @@delay_inc}s."
+          if @servers.size < @config.get[:sensu][:minimal_to_restart]
+            msg = "Sensu-servers count < #{@config.get[:sensu][:minimal_to_restart]}. Restart will not be performed. Next try after #{@delay + @delay_inc}s."
             fail RestarterError.new(msg)
             @delay += @delay_inc if @delay < 3600
             sleep @delay
             break
           end
 
-          # NOTE:
+          # NOTE: some legacy shit
           # TBD:
           if server.address.include?('172.')
             fail RestarterError.new("Skipping node #{server.address}")
           end
 
-          if need_update?
-            server.sync &&
-            server.restart &&
-            servers_updated += server.address
-          end
-
-          if servers_updated.size == @servers.size && @servers.index(server) == @server.size
-            actualize_update_time
+          server.sync &&
+          server.restart &&
+          servers_updated << server.address
+          
+          if servers_updated.size == @servers.size && @servers.index(server) == (@servers.size - 1)
+            trigger.clear
           else
             fail RestarterError.new("Could not synchronize or restart #{@servers - servers_updated.join(',')}")
           end
         rescue => e
+          @logger.error e
           tries += 1
-          if tries <= 3
-            retry
-          else
-            logger.error e
-            next
-          end
+          tries <= 3 ? retry : next
         end
       end
     end
 
-    private
-
     def need_to_apply_new_configs?
+      @logger.debug "\n  Trigger:\n\tdifference_between_touches: #{@trigger.difference_between_touches}"\
+                    "\n\tlast_touch_age: #{@trigger.last_touch_age}"\
+                    "\n\tmodified_since_last_update?: #{@trigger.modified_since_last_update?}"
       (@trigger.difference_between_touches > 120 || @trigger.last_touch_age > 120) && @trigger.modified_since_last_update?
     end
   end

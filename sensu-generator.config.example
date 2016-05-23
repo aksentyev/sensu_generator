@@ -1,0 +1,28 @@
+{
+  "sensu": {
+    "check_default_params": {
+      "refresh": 86400,
+      "interval": 60,
+      "aggregate": true
+    },
+    "service": "sensu-server",
+    "supervisor": {
+      "user": "sensu",
+      "password": "PASSWORD"
+    }
+  },
+  "slack": {
+    "url": "URL",
+    "channel": "sensu",
+    "level": "error"
+  },
+  "logger": {
+    "notify_level": "error",
+    "log_level": "debug"
+  },
+  "consul": {
+    "url": "http://consul.service.consul:8500"
+  },
+  "templates_dir": "work/templates",
+  "result_dir": "work/result",
+}

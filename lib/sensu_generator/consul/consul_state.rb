@@ -3,7 +3,8 @@ module SensuGenerator
     def initialize(consul:, logger: Application.logger)
       @logger = logger
       @consul = consul
-      reset
+      @actual_state = []
+
       actualize
     end
 
@@ -12,33 +13,29 @@ module SensuGenerator
     end
 
     def actualize
-      consul_services = @consul.services
-      @svc_list_diff = consul_services.map {|name, _| name.to_s }.sort - @actual_state.map { |svc| svc.name.to_s}.sort
+      reset
+      @svc_list_diff = @consul.services.map {|name, _| name.to_s } - @actual_state.map { |svc| svc.name.to_s}
+      @actual_state.each(&:update)
       @svc_list_diff.each do |name|
         @actual_state << ConsulService.new(consul: @consul, name: name)
       end
-      logger.debug "Services actualized list: #{@actual_state}"
+      logger.debug "Services actualized list: #{@actual_state.map { |svc| svc.name.to_s} }"
       self
     end
 
     def changed?
-      state = !svc_list_diff.empty? && svc_changes
-      logger.debug "Consul state was changed" if state
+      state = !@svc_list_diff.empty? || !changes.empty?
+      logger.debug "Consul state was changed: #{state.to_s}"
       state
     end
 
     def changes
-      @svc_changes ||= @actual_state.map do |svc|
-                        svc.update
-                        svc.changed?
-                        svc
-                      end
+      @svc_changes ||= @actual_state.select(&:changed?)
     end
 
     def reset
-      @actual_state = []
-      @svc_changes = []
-      @svc_list_diff = []
+      @svc_changes = nil
+      @svc_list_diff = nil
     end
 
     private

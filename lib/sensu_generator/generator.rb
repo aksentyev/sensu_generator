@@ -15,48 +15,57 @@ module SensuGenerator
 
     def generate!
       @processed_files = []
-      namespace = binding
-      # flush_results
       @services.each do |svc|
-        require 'pry'
-        binding.pry
-        if svc.properties.class == Array
-          svc.properties.each do |instance|
-            svc.checks.each do |check|
-              next if check.nil?
+        next unless svc.changed?
+        svc.checks.each do |check|
+          next if check.nil?
+          begin
+            if check.class == String
+              templates_for(check).each do |src|
+                file_name = "#{svc.name}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
+                dest = File.join(result_dir, file_name)
 
-              if check.class == String
-                templates_for(check).each do |src|
-                  file_name = "#{svc}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
-                  dest = File.join(result_dir, file_name)
-                  props = instance ? instance : svc
-                  namespace.local_variable_set(:props, svc)
-                  namespace.local_variable_set(:check, check)
+                result = merge_with_default_parameters(
+                            JSON(
+                              process(template: src, namespace: binding),
+                              symbolize_names: true
+                            )
+                          )
 
-                  result = process(template: src, namespace: namespace)
-                  File.new(dest, 'w').write(result)
+                file = File.open(dest, 'w+')
+                file.write(result)
+                file.close
 
-                  @trigger.touch if result
-                  @processed_files << file_name
-                end
-                #TODO
-                # Implement json parameters parsing
+                @trigger.touch if result
+                @processed_files << file_name
               end
+            else
+              #TODO
+              # Implement json parameters parsing
             end
+          rescue => e
+            logger.error e
+            next
           end
         end
       end
       @processed_files
     end
 
+    def flush_results
+      FileUtils.rm(Dir.glob("#{result_dir}/*"))
+    end
+
     private
     attr_reader :logger
 
-    def flush_results
-      fail GeneratorError.new("Result dir is not defined!") unless result_dir
-      FileUtils.rm(Dir.glob("#{result_dir}/*"))
-    rescue GeneratorError => e
-      logger.error e
+    def merge_with_default_parameters(hash)
+      {}.tap do |res|
+        res[:checks] = {}
+        hash[:checks].map do |k, v|
+          res[:checks][k] = v.merge(@config.get[:sensu][:check_default_params])
+        end
+      end
     end
 
     def process(template:, namespace:)
@@ -68,17 +77,18 @@ module SensuGenerator
     end
 
     def templates_for(check)
-      list = File.expand_path Dir.glob("#{templates_dir}/#{check}*")
+      list = Dir.glob("#{templates_dir}/#{check}*").map {|f| File.expand_path f}
       logger.debug "Templates for #{check}"
       list
     end
 
     def templates_dir
-      @config[:sensu][:templates_dir]
+      @config.get[:templates_dir]
     end
 
     def result_dir
-      File.expand_path(@config[:sensu][:result_dir])
+      fail GeneratorError.new("Result dir is not defined!") unless @config.get[:result_dir]
+      File.expand_path(@config.get[:result_dir])
     end
   end
 end

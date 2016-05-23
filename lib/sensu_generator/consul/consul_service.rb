@@ -4,8 +4,6 @@ module SensuGenerator
     attr_reader :name, :properties, :checks
 
     def initialize(consul:, name:)
-      @properties = []
-      @checks = []
       @consul = consul
       @name   = name
       @changed = true
@@ -17,19 +15,21 @@ module SensuGenerator
       @all_properties ||= { checks: get_checks, properties: get_props }
     end
 
+    alias :get_all_properties :all_properties
+
     def get_checks
-      @checks = @consul.kv_checks_props(name) if @checks.empty?
+      @checks ||= @consul.kv_checks_props(name)
     end
 
     def get_props
-      @properties = @properties.empty? ? @consul.get_service_props(name) : @properties
+      @properties ||= @consul.get_service_props(name)
     end
 
     def update
-      old_all_properties = all_properties
-      empty
-      changed = true if all_properties != old_all_properties
+      old_all_properties = all_properties.clone
       reset
+      get_all_properties
+      @changed = true if all_properties != old_all_properties
     end
 
     def changed?
@@ -37,9 +37,9 @@ module SensuGenerator
     end
 
     def reset
-      @all_properties = {}
-      @properties     = {}
-      @checks         = {}
+      @all_properties = nil
+      @properties     = nil
+      @checks         = nil
       @changed = false
     end
   end

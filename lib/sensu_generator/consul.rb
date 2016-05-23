@@ -6,15 +6,15 @@ module SensuGenerator
     def initialize(config:)
       @config = config
       Diplomat.configure do |consul|
-        @config[:consul].each do |k, v|
+        @config.get[:consul].each do |k, v|
           consul.public_send("#{k}=", v)
         end
       end
     end
 
     def sensu_servers
-      get_service_props(@config[:sensu][:service]).map {|hash| hash['ServiceAddress']}.uniq.
-        map {|addr| SensuServer.new(address: addr, supervisor: @config[:sensu][:supervisor])}
+      get_service_props(@config.get[:sensu][:service]).map {|hash| hash[:ServiceAddress]}.uniq.
+        map {|addr| SensuServer.new(address: addr, config: @config)}
     end
 
     def services
@@ -23,7 +23,6 @@ module SensuGenerator
 
     def get_service_props(svc)
       result = Diplomat::Service.get(svc, :all)
-      # Array or OpenStruct
       result.class == Array ? result.map {|el| el.to_h.remove_consul_indexes} : result.to_h.remove_consul_indexes
     end
 
@@ -33,11 +32,5 @@ module SensuGenerator
     rescue
       response ? response.gsub(/\s+/, '').split(',') : []
     end
-  end
-end
-
-class Hash
-  def remove_consul_indexes
-    delete_if {|k,v| %i(CreateIndex ModifyIndex).include? k}
   end
 end

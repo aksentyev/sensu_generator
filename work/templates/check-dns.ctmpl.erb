@@ -1,13 +1,13 @@
 {
   "checks": {
-    "check-consul-dns-<%= svc %>": {
+    "check-consul-dns-<%= svc.name %>": {
       "aggregate": true,
-      "command": "check-dns.rb --domain <%= svc %>.service.consul",
+      "command": "check-dns.rb --domain <%= svc.name %>.service.consul",
       "interval": 60,
       "subscribers": ["roundrobin:sensu-checker"],
       "refresh": 86400,
-      "handlers": <% if svc.include?('production') %> ["production"] <% else %>["staging"]<% end %>,
-      "source": "<%= svc %>.service"
+      "handlers": <% if svc.name.include?('production') %> ["production"] <% else %>["staging"]<% end %>,
+      "source": "<%= svc.name %>.service"
     }
   }
 }

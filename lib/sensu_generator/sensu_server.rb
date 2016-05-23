@@ -6,16 +6,16 @@ module SensuGenerator
     attr_reader :address
 
     def initialize(address:, config:, logger: Application.logger)
-      @address    = address
-      @config     = config
-      @logger     = logger
+      @address = address
+      @config  = config
+      @logger  = logger
     end
 
     def process
       unless @process
         client = RubySupervisor::Client.new(address, 9001,
-            user: config[:supervisor][:user],
-            password: config[:supervisor][:password]
+            user: @config.get[:sensu][:supervisor][:user],
+            password: @config.get[:sensu][:supervisor][:password]
           )
         @process = client.process('sensu-server')
       end
@@ -24,7 +24,7 @@ module SensuGenerator
 
     def restart
       process.restart
-      logger.info "Send restart command to sensu-server #{@address}"
+      @logger.info "Send restart command to sensu-server #{@address}"
       running?
     end
 
@@ -32,7 +32,7 @@ module SensuGenerator
       10.times do |t|
         if process.state.to_s == 'running'
           msg = "Sensu-server #{@address} was successfully restarted"
-          logger.info msg
+          @logger.info msg
           return true
         else
           if t == 10
@@ -43,7 +43,7 @@ module SensuGenerator
         end
       end
     rescue SensuServerError => e
-      logger.error e
+      @logger.error e
       false
     end
 
@@ -57,13 +57,13 @@ module SensuGenerator
         status = res.success?
         if status
           msg = "synced"
-          logger.info ("Sensu-server #{@address}: #{msg}")
+          @logger.info ("Sensu-server #{@address}: #{msg}")
         else
           msg = "sync FAILED, out: #{res.inspect}"
           fail SensuServerError.new("Sensu-server #{@address}: #{msg}")
         end
       rescue SensuServerError => e
-        logger e
+        @logger.error e
       end
       status || false
     end
@@ -71,7 +71,7 @@ module SensuGenerator
     private
 
     def result_dir
-      File.expand_path(config[:result_dir])
+      File.expand_path(@config.get[:result_dir])
     end
   end
 end

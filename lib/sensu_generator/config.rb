@@ -2,8 +2,6 @@ require 'json'
 
 module SensuGenerator
   class Config
-    attr_reader :config
-
     @@default = {
                 :sensu => {
                   :check_default_params => {
@@ -11,17 +9,17 @@ module SensuGenerator
                     :interval => 60,
                     :aggregate => true
                   },
+                  :minimal_to_restart => 2,
                   :service => "sensu-server",
                   :supervisor => {:user => "", :password => ""},
-                  :results_dir => "work"
                 },
+                :result_dir => "work/result",
+                :templates_dir => "work/templates",
                 :logger => {
                   :file => STDOUT,
                   :notify_level => "error",
                   :log_level => "debug"
                 },
-                :templates_dir => "tmp/templates",
-                :result_dir => "tmp/result",
                 :slack => {
                   :url => nil,
                   :channel => nil,
@@ -37,9 +35,13 @@ module SensuGenerator
       @config = process(path)
     end
 
+    def get
+      @config
+    end
+
     def process(path)
       custom = path ? JSON(File.read(path), :symbolize_names => true) : {}
-      @config = @@default.merge(custom)
+      @config = @@default.deep_merge(custom)
     end
   end
 end

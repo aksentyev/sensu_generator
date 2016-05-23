@@ -25,23 +25,22 @@ module SensuGenerator
         end
       end.parse!
 
-      config   = Config.new(config_file).config
-      logger   = Logger.new(config[:logger])
-      logger.level = eval("Logger::#{config[:logger][:log_level].upcase}")
-      notifier = Notifier.new(config[:slack])
+      config   = Config.new(config_file)
+      logger   = Logger.new(config.get[:logger])
+      logger.level = eval("Logger::#{config.get[:logger][:log_level].upcase}")
+      notifier = Notifier.new(config.get[:slack])
 
       Application.new(config: config, logger: logger, notifier: notifier).run
     rescue => exception
-      msg = ("sensu-generator exited with non-zero code.\n #{exception.backtrace.join("\n\t")}")
+      msg = %("sensu-generator exited with non-zero code.\n #{exception.backtrace.join("\n\t")}")
       logger.fatal msg
-    #   #TODO
-    # #   notifier.notify msg
+    #   TODO
+    #   notifier.notify msg
     end
   end
 end
 
-# if __FILE__ == $0
-#   Daemons.run_proc(__FILE__) do
-    SensuGenerator::main
-  # end
+
+# Daemons.run_proc(__FILE__) do
+  SensuGenerator::main
 # end

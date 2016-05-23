@@ -1,3 +1,5 @@
+require "sensu_generator/hash"
+
 require "sensu_generator/application"
 require "sensu_generator/config"
 require "sensu_generator/exceptions"
