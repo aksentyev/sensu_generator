@@ -1,8 +1,6 @@
 # SensuGenerator
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sensu_generator`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+SensuGenerator is an intermediate layer between Consul and Sensu. It helps to set up dynamic monitoring systems. It generates check configurations from ERB templates according to *tags* listed in the KV and Consul service properties. Files generated from templates will be synced via *rsync* and Sensu servers will be restarted using http Supervisord API. All files are generated when application starts and only changes will be processed.
 
 ## Installation
 
@@ -12,25 +10,33 @@ Add this line to your application's Gemfile:
 gem 'sensu_generator'
 ```
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install sensu_generator
 
 ## Usage
 
-TODO: Write usage instructions here
+sensu_generator start|stop|status -- [options]
+
+All service checks *tag* are stored in the Consul Key-Value storage in *checks* folder. Tag is the beginning of a service check template name and should be specified as a part of value in the Consul KV storage. Note that value should be comma-separated tags list.
+
+##### Example:
+
+**consul_url***/kv/nginx/checks*
+```
+[check-http, check-tcp]
+```
+
+Use ***svc*** (contains service data form consul) and ***check*** (contains *tag* name) in the ERB template.
+
+Use Slack as notifier if you want.
+
+Use *sensu-generator.config.example* to make your own.
+
+NOTE There are no tests for this ~~legacy shit~~ application.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sensu_generator. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sensu_generator. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the

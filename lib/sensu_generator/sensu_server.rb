@@ -25,20 +25,19 @@ module SensuGenerator
 
     def restart
       process.restart
-      logger.info "Send restart command to sensu-server #{@address}"
+      logger.info "Send restart command to sensu-server #{address}"
       running?
     end
 
     def running?
       10.times do |t|
+        logger.info "Trying to restart server #{address}. Attempt=#{t}."
         if process.state.to_s == 'running'
-          msg = "Sensu-server #{@address} was successfully restarted"
-          logger.info msg
+          logger.info "Sensu-server #{address} was successfully restarted"
           return true
         else
           if t == 10
-            msg = "Sensu-server #{@address} restart FAILED"
-            fail SensuServerError.new msg
+            fail SensuServerError.new "Sensu-server #{address} restart FAILED"
           end
           sleep 1
         end
@@ -53,14 +52,14 @@ module SensuGenerator
 
     def sync
       begin
-        res = Rsync.run(result_dir, "rsync://#{@address}/sensu-checks", "--delete --recursive")
+        res = Rsync.run(result_dir, "rsync://#{address}/sensu-checks", "--delete --recursive")
         status = res.success?
         if status
           msg = "synced"
-          logger.info ("Sensu-server #{@address}: #{msg}")
+          logger.info ("Sensu-server #{address}: #{msg}")
         else
           msg = "sync FAILED, out: #{res.inspect}"
-          fail SensuServerError.new("Sensu-server #{@address}: #{msg}")
+          fail SensuServerError.new("Sensu-server #{address}: #{msg}")
         end
       rescue SensuServerError
         status = false
