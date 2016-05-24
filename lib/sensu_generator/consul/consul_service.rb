@@ -3,7 +3,7 @@ module SensuGenerator
 
     attr_reader :name, :properties, :checks
 
-    def initialize(consul:, name:)
+    def initialize(name:, consul: nil)
       @consul = consul
       @name   = name
       @changed = true
@@ -41,6 +41,12 @@ module SensuGenerator
       @properties     = nil
       @checks         = nil
       @changed = false
+    end
+
+    private
+
+    def consul
+      @consul ||= Consul.new
     end
   end
 end

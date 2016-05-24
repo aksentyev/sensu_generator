@@ -3,18 +3,20 @@ require 'diplomat'
 
 module SensuGenerator
   class Consul
-    def initialize(config:)
+    attr_accessor :config
+
+    def initialize(config: Application.config)
       @config = config
       Diplomat.configure do |consul|
-        @config.get[:consul].each do |k, v|
+        config.get[:consul].each do |k, v|
           consul.public_send("#{k}=", v)
         end
       end
     end
 
     def sensu_servers
-      get_service_props(@config.get[:sensu][:service]).map {|hash| hash[:ServiceAddress]}.uniq.
-        map {|addr| SensuServer.new(address: addr, config: @config)}
+      get_service_props(config.get[:sensu][:service]).map {|hash| hash[:ServiceAddress]}.uniq.
+        map {|addr| SensuServer.new(address: addr)}
     end
 
     def services

@@ -10,13 +10,17 @@ module SensuGenerator
       def notifier
         @@notifier
       end
+
+      def config
+        @@config
+      end
     end
 
     def initialize(config:, logger:, notifier:)
-      @config  = config
       @threads = []
       @@logger = logger
       @@notifier = notifier
+      @@config  = config
       logger.info "Starting application..."
     end
 
@@ -28,10 +32,14 @@ module SensuGenerator
       @@notifier
     end
 
+    def config
+      @@config
+    end
+
     def run_restarter
       logger.info "Starting restarter..."
       loop do
-        logger.debug 'Restarter is alive!'
+        logger.info 'Restarter is alive!'
         if restarter.need_to_apply_new_configs?
           restarter.perform_restart
           trigger.reset
@@ -44,7 +52,7 @@ module SensuGenerator
       logger.info "Starting generator..."
       generator.flush_results
       loop do
-        logger.debug 'Generator is alive!'
+        logger.info 'Generator is alive!'
         if state.changed?
           generator.services = state.changes
           list = generator.generate!
@@ -53,8 +61,6 @@ module SensuGenerator
         sleep 60
         state.actualize
       end
-    rescue Diplomat::PathNotFound
-      fail ApplicationError.new("Could not connect to #{config.get[:consul][:url]}")
     end
 
     def run
@@ -75,10 +81,6 @@ module SensuGenerator
     end
 
     private
-    def config
-      @config
-    end
-
     def trigger
       @trigger ||= Trigger.new
     end
@@ -86,15 +88,15 @@ module SensuGenerator
     def restarter
       sensu_servers = consul.sensu_servers
       logger.info "Sensu servers discovered: #{sensu_servers.map(&:address).join(',')}"
-      @restarter ||= Restarter.new(trigger: trigger, servers: sensu_servers, config: config)
+      @restarter ||= Restarter.new(trigger: trigger, servers: sensu_servers)
     end
 
     def consul
-      @consul ||= Consul.new(config: config)
+      @consul ||= Consul.new
     end
 
     def generator
-      @generator ||= Generator.new(trigger: trigger, config: config)
+      @generator ||= Generator.new(trigger: trigger)
     end
 
     def state

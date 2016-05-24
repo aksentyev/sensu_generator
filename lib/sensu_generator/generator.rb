@@ -4,7 +4,7 @@ require 'fileutils'
 
 module SensuGenerator
   class Generator
-    def initialize(trigger:, services: [], config:, logger: Application.logger)
+    def initialize(trigger:, services: [], config: Application.config, logger: Application.logger)
       @trigger  = trigger
       @services = services
       @config   = config
@@ -12,6 +12,7 @@ module SensuGenerator
     end
 
     attr_writer :services
+    attr_accessor :logger, :config
 
     def generate!
       @processed_files = []
@@ -31,11 +32,7 @@ module SensuGenerator
                               symbolize_names: true
                             )
                           )
-
-                file = File.open(dest, 'w+')
-                file.write(JSON.pretty_generate(result))
-                file.close
-
+                write(JSON.pretty_generate(result))
                 @trigger.touch if result
                 @processed_files << file_name
               end
@@ -57,13 +54,12 @@ module SensuGenerator
     end
 
     private
-    attr_reader :logger
 
     def merge_with_default_parameters(hash)
       {}.tap do |res|
         res[:checks] = {}
         hash[:checks].map do |k, v|
-          res[:checks][k] = v.merge(@config.get[:sensu][:check_default_params])
+          res[:checks][k] = v.merge(config.get[:sensu][:check_default_params])
         end
       end
     end
@@ -72,8 +68,6 @@ module SensuGenerator
       ERB.new(File.read(template)).result(namespace)
     rescue => e
       fail GeneratorError.new("Failed to process ERB file #{template}.\n #{e.backtrace}")
-    rescue GeneratorError => e
-      logger.warn e
     end
 
     def templates_for(check)
@@ -83,12 +77,18 @@ module SensuGenerator
     end
 
     def templates_dir
-      @config.get[:templates_dir]
+      config.get[:templates_dir]
     end
 
     def result_dir
-      fail GeneratorError.new("Result dir is not defined!") unless @config.get[:result_dir]
-      File.expand_path(@config.get[:result_dir])
+      fail GeneratorError.new("Result dir is not defined!") unless config.get[:result_dir]
+      File.expand_path(config.get[:result_dir])
+    end
+
+    def write(dest, data)
+      file = File.open(dest, 'w+')
+      file.write(data)
+      file.close
     end
   end
 end

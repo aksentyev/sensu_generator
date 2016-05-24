@@ -3,7 +3,9 @@ require 'rsync'
 
 module SensuGenerator
   class Restarter
-    def initialize(logger: Application.logger, trigger:, servers:, config:)
+    attr_accessor :logger, :config
+
+    def initialize(trigger:, servers:, logger: Application.logger, config: Application.config)
       @delay = 0
       @delay_inc = 600
       @config = config
@@ -18,8 +20,8 @@ module SensuGenerator
 
       @servers.each do |server|
         begin
-          if @servers.size < @config.get[:sensu][:minimal_to_restart]
-            msg = "Sensu-servers count < #{@config.get[:sensu][:minimal_to_restart]}. Restart will not be performed. Next try after #{@delay + @delay_inc}s."
+          if @servers.size < config.get[:sensu][:minimal_to_restart]
+            msg = "Sensu-servers count < #{config.get[:sensu][:minimal_to_restart]}. Restart will not be performed. Next try after #{@delay + @delay_inc}s."
             fail RestarterError.new(msg)
             @delay += @delay_inc if @delay < 3600
             sleep @delay
@@ -42,7 +44,6 @@ module SensuGenerator
             fail RestarterError.new("Could not synchronize or restart #{@servers - servers_updated.join(',')}")
           end
         rescue => e
-          @logger.error e
           tries += 1
           tries <= 3 ? retry : next
         end
@@ -50,7 +51,7 @@ module SensuGenerator
     end
 
     def need_to_apply_new_configs?
-      @logger.debug "\n  Trigger:\n\tdifference_between_touches: #{@trigger.difference_between_touches}"\
+      logger.debug "\n  Trigger:\n\tdifference_between_touches: #{@trigger.difference_between_touches}"\
                     "\n\tlast_touch_age: #{@trigger.last_touch_age}"\
                     "\n\tmodified_since_last_update?: #{@trigger.modified_since_last_update?}"
       (@trigger.difference_between_touches > 120 || @trigger.last_touch_age > 120) && @trigger.modified_since_last_update?

@@ -1,6 +1,6 @@
 module SensuGenerator
   class ConsulState < Consul
-    def initialize(consul:, logger: Application.logger)
+    def initialize(consul: nil, logger: Application.logger)
       @logger = logger
       @consul = consul
       @actual_state = []
@@ -41,5 +41,9 @@ module SensuGenerator
     private
 
     attr_reader :logger
+
+    def consul
+      @consul ||= Consul.new
+    end
   end
 end

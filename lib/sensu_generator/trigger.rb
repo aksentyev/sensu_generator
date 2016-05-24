@@ -1,5 +1,5 @@
 module SensuGenerator
-  class Trigger < Application
+  class Trigger
     attr_reader :last, :previous
 
     def initialize
@@ -28,6 +28,10 @@ module SensuGenerator
 
     def modified_since_last_update?
       @previous != @last
+    end
+
+    def logger
+      @logger ||= Application.logger
     end
   end
 end

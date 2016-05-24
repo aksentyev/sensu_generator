@@ -1,22 +1,21 @@
 module SensuGenerator
-  class Exception < RuntimeError
+  %w(ApplicationError RestarterError GeneratorError SensuServerError).each do |e|
+    eval(
+      %Q(
+        class #{e} < StandardError
+          def initialize(msg)
+            Application.logger.error msg
+          end
+        end
+      )
+    )
   end
+end
 
-  class Error < Exception
-  end
-
-  class ApplicationException < Exception
-  end
-
-  class ApplicationError < Error
-  end
-
-  class RestarterError < Error
-  end
-
-  class GeneratorError < Error
-  end
-
-  class SensuServerError < Error
+module Diplomat
+  class PathNotFound < StandardError
+    def initialize(*args)
+      ::SensuGenerator::Application.logger.error "Could not connect to consul with provided url"
+    end
   end
 end
