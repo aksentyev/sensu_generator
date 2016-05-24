@@ -71,7 +71,7 @@ module SensuGenerator
     end
 
     def templates_for(check)
-      list = Dir.glob("#{templates_dir}/#{check}*").map {|f| File.expand_path f}
+      list = Dir.glob("#{File.expand_path(templates_dir)}/#{check}*")
       logger.debug "Templates for #{check}"
       list
     end
