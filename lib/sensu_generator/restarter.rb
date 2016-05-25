@@ -28,12 +28,6 @@ module SensuGenerator
             break
           end
 
-          # NOTE: some legacy shit
-          # TBD:
-          if server.address.include?('172.')
-            fail RestarterError.new("Skipping node #{server.address}")
-          end
-
           server.sync &&
           server.restart &&
           servers_updated << server.address

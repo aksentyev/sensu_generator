@@ -33,6 +33,26 @@ Use Slack as notifier if you want.
 
 Use *sensu-generator.config.example* to make your own.
 
+##### Check ERB template example:
+
+```
+{
+  "checks": {
+    <% svc.each do |instance| -%>
+      <% if svc.tags.include? "udp" %>
+       "check-api-drone-<%= instance.port %>": {
+         "command": "check-ports.rb -h <%= instance.name %>.service.consul -P udp",
+         "subscribers": ["roundrobin:sensu-checker-node"],
+         "handlers": ["slack"],
+         "source": "<%= instance.name %>.service"
+       }<%= "," if svc[-1] == instance %>
+      <% end %>
+    <% end %>
+  }
+}
+
+```
+
 NOTE There are no tests for this ~~legacy shit~~ application.
 
 ## Development
