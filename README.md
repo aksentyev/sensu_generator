@@ -38,18 +38,18 @@ Use *sensu-generator.config.example* to make your own.
 ```
 {
   "checks": {
-    <% svc.each do |instance| -%>
-      <% if svc.tags.include? "udp" %>
-       "check-api-drone-<%= instance.port %>": {
-         "command": "check-ports.rb -h <%= instance.name %>.service.consul -P udp",
-         "subscribers": ["roundrobin:sensu-checker-node"],
-         "handlers": ["slack"],
-         "source": "<%= instance.name %>.service"
-       }<%= "," if svc[-1] == instance %>
-      <% end %>
+    <% svc.properties.each do |instance| %>
+    <% next if instance.ServiceTags.include? "udp" %>
+     "check-ports-tcp-<%= "#{svc.name}-#{instance.ServiceAddress}-#{instance.ServicePort}" %>": {
+       "command": "check-ports.rb -h <%= instance.ServiceAddress %> -p <%= instance.ServicePort %>",
+       "subscribers": ["roundrobin:sensu-checker-node"],
+       "handlers": ["slack"],
+       "source": "<%= svc.name %>.service"
+     }<%= "," if svc[-1] != instance %>
     <% end %>
   }
 }
+
 
 ```
 

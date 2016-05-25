@@ -25,16 +25,17 @@ module SensuGenerator
               templates_for(check).each do |src|
                 file_name = "#{svc.name}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
                 dest = File.join(result_dir, file_name)
-
                 result = merge_with_default_parameters(
                             JSON(
                               process(template: src, namespace: binding),
                               symbolize_names: true
                             )
                           )
-                write(JSON.pretty_generate(result))
-                @trigger.touch if result
-                @processed_files << file_name
+                if result
+                  write(dest, JSON.pretty_generate(result))
+                  @trigger.touch
+                  @processed_files << file_name
+                end
               end
             else
               #TODO
@@ -66,8 +67,8 @@ module SensuGenerator
 
     def process(template:, namespace:)
       ERB.new(File.read(template)).result(namespace)
-    rescue => e
-      fail GeneratorError.new("Failed to process ERB file #{template}.\n #{e.backtrace}")
+    rescue ::Exception => e # Catch all ERB errors
+      fail GeneratorError.new("Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}")
     end
 
     def templates_for(check)

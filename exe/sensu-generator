@@ -29,19 +29,19 @@ module SensuGenerator
                 end
 
       optparse.parse!(args)
-      File.expand_path config
+      config ? File.expand_path(config) : nil
     end
 
-    def run(config_file)
+    def run(config_file = nil)
       config       = Config.new(config_file)
       logger       = Logger.new(config.get[:logger])
       logger.level = eval("Logger::#{config.get[:logger][:log_level].upcase}")
       notifier     = Notifier.new(config.get[:slack])
 
       Application.new(config: config, logger: logger, notifier: notifier).run
-    # rescue => exception
-    #   msg = %("Sensu_generator exited with non-zero code.\n #{exception.backtrace.join("\n\t")}")
-    #   Logger.new(file: STDOUT).fatal msg
+    rescue => e
+      msg = %("Sensu_generator exited with non-zero code.\n #{e.to_s} \n#{e.backtrace.join("\n\t")}")
+      Logger.new(file: STDOUT).fatal msg
     end
   end
 end

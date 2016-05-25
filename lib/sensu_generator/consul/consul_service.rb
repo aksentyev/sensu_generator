@@ -12,7 +12,8 @@ module SensuGenerator
     end
 
     def all_properties
-      @all_properties ||= { checks: get_checks, properties: get_props }
+      properties = get_props.class == Array ? get_props.map {|el| el.to_h} : get_props.to_h
+      @all_properties ||= { checks: get_checks, properties: properties }
     end
 
     alias :get_all_properties :all_properties

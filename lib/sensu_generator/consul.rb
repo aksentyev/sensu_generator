@@ -25,7 +25,7 @@ module SensuGenerator
 
     def get_service_props(svc)
       result = Diplomat::Service.get(svc, :all)
-      result.class == Array ? result.map {|el| el.to_h.remove_consul_indexes} : result.to_h.remove_consul_indexes
+      result.class == Array ? result.map {|el| el.remove_consul_indexes} : result.remove_consul_indexes
     end
 
     def kv_checks_props(svc)
@@ -34,5 +34,14 @@ module SensuGenerator
     rescue
       response ? response.gsub(/\s+/, '').split(',') : []
     end
+  end
+end
+
+class OpenStruct
+  def remove_consul_indexes
+    %w(CreateIndex ModifyIndex).each do |f|
+      self.delete_field(f) if self.respond_to?(f)
+    end
+    self
   end
 end

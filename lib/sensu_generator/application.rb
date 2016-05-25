@@ -46,6 +46,8 @@ module SensuGenerator
         end
         sleep 60
       end
+    rescue => e
+      fail ApplicationError.new("Restarter error:\n\t #{e.to_s}\n\t #{e.backtrace}")
     end
 
     def run_generator
@@ -56,11 +58,13 @@ module SensuGenerator
         if state.changed?
           generator.services = state.changes
           list = generator.generate!
-          logger.info %Q(Files processed: #{list.join("\n")})
+          logger.info %Q(#{list.size} files processed: #{list.join("\n")})
         end
         sleep 60
         state.actualize
       end
+    rescue => e
+      fail ApplicationError.new("Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}")
     end
 
     def run
