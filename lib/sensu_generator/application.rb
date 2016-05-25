@@ -42,7 +42,6 @@ module SensuGenerator
         logger.info 'Restarter is alive!'
         if restarter.need_to_apply_new_configs?
           restarter.perform_restart
-          trigger.reset
         end
         sleep 60
       end
@@ -58,7 +57,7 @@ module SensuGenerator
         if state.changed?
           generator.services = state.changes
           list = generator.generate!
-          logger.info %Q(#{list.size} files processed: #{list.join("\n")})
+          logger.info %Q(#{list.size} files processed: #{list.join(', ')})
         end
         sleep 60
         state.actualize
@@ -89,12 +88,6 @@ module SensuGenerator
       @trigger ||= Trigger.new
     end
 
-    def restarter
-      sensu_servers = consul.sensu_servers
-      logger.info "Sensu servers discovered: #{sensu_servers.map(&:address).join(',')}"
-      @restarter ||= Restarter.new(trigger: trigger, servers: sensu_servers)
-    end
-
     def consul
       @consul ||= Consul.new
     end
@@ -104,7 +97,13 @@ module SensuGenerator
     end
 
     def state
-      @state ||= ConsulState.new(consul: consul)
+      @state ||= ConsulState.new
+    end
+
+    def restarter
+      list = consul.sensu_servers
+      logger.info "Sensu servers discovered: #{list.map(&:address).join(', ')}"
+      Restarter.new(trigger: trigger, servers: list)
     end
 
     def run_thread(name)

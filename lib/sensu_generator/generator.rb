@@ -66,6 +66,7 @@ module SensuGenerator
     end
 
     def process(template:, namespace:)
+      logger.debug "Processing template #{template}"
       ERB.new(File.read(template)).result(namespace)
     rescue ::Exception => e # Catch all ERB errors
       fail GeneratorError.new("Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}")
@@ -73,7 +74,7 @@ module SensuGenerator
 
     def templates_for(check)
       list = Dir.glob("#{File.expand_path(templates_dir)}/#{check}*")
-      logger.debug "Templates for #{check}"
+      logger.debug "Templates for #{check}: #{list.join(', ')}"
       list
     end
 

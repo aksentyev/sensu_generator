@@ -1,6 +1,6 @@
 module SensuGenerator
   class ConsulState < Consul
-    def initialize(consul: nil, logger: Application.logger)
+    def initialize(logger: Application.logger)
       @logger = logger
       @consul = consul
       @actual_state = []
@@ -17,7 +17,7 @@ module SensuGenerator
       @svc_list_diff = @consul.services.map {|name, _| name.to_s } - @actual_state.map { |svc| svc.name.to_s}
       @actual_state.each(&:update)
       @svc_list_diff.each do |name|
-        @actual_state << ConsulService.new(consul: @consul, name: name)
+        @actual_state << ConsulService.new(name: name)
       end
       logger.debug "Services actualized list: #{@actual_state.map { |svc| svc.name.to_s} }"
       self

@@ -3,10 +3,10 @@ module SensuGenerator
 
     attr_reader :name, :properties, :checks
 
-    def initialize(name:, consul: nil)
-      @consul = consul
-      @name   = name
+    def initialize(name:)
+      @name    = name
       @changed = true
+      @consul  = consul
       all_properties
       self
     end
@@ -19,11 +19,11 @@ module SensuGenerator
     alias :get_all_properties :all_properties
 
     def get_checks
-      @checks ||= @consul.kv_checks_props(name)
+      @checks ||= kv_svc_props(key: 'checks')
     end
 
     def get_props
-      @properties ||= @consul.get_service_props(name)
+      @properties ||= get_service_props(name)
     end
 
     def update

@@ -28,6 +28,8 @@ All service checks *tag* are stored in the Consul Key-Value storage in *checks* 
 ```
 
 Use ***svc*** (contains service data form consul) and ***check*** (contains *tag* name) in the ERB template.
+***svc.kv_svc_props(key: key)*** can be used to access to ***svc/key*** data.
+If key is not specified it will be requested the whole ***svc/*** folder.
 
 Use Slack as notifier if you want.
 
@@ -45,7 +47,7 @@ Use *sensu-generator.config.example* to make your own.
        "subscribers": ["roundrobin:sensu-checker-node"],
        "handlers": ["slack"],
        "source": "<%= svc.name %>.service"
-     }<%= "," if svc[-1] != instance %>
+      }<%= "," if instance != svc.properties.last %>
     <% end %>
   }
 }

@@ -15,7 +15,7 @@ module SensuGenerator
     end
 
     def sensu_servers
-      get_service_props(config.get[:sensu][:service]).map {|hash| hash[:ServiceAddress]}.uniq.
+      get_service_props(config.get[:sensu][:service]).map {|el| el.ServiceAddress}.uniq.
         map {|addr| SensuServer.new(address: addr)}
     end
 
@@ -28,11 +28,20 @@ module SensuGenerator
       result.class == Array ? result.map {|el| el.remove_consul_indexes} : result.remove_consul_indexes
     end
 
-    def kv_checks_props(svc)
-      response = Diplomat::Kv.get("#{svc}/checks")
-      JSON(response)
+    def kv_svc_props(svc: self.name, key: nil)
+      opts = key ? nil : {recurse: true}
+      response = Diplomat::Kv.get("#{svc}/#{key}", opts)
+      key ? JSON(response) : response # Maybe the feature of JSON check configuration will be implemented
     rescue
-      response ? response.gsub(/\s+/, '').split(',') : []
+      if response
+        if response.match(/\s+/)
+          response.gsub(/\s+/, '').split(',')
+        else
+          response
+        end
+      else
+        []
+      end
     end
   end
 end

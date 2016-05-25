@@ -16,7 +16,6 @@ module SensuGenerator
 
     def perform_restart
       servers_updated = []
-      tries = 0
 
       @servers.each do |server|
         begin
@@ -32,14 +31,15 @@ module SensuGenerator
           server.restart &&
           servers_updated << server.address
 
-          if servers_updated.size == @servers.size && @servers.index(server) == (@servers.size - 1)
-            @trigger.clear
-          else
-            fail RestarterError.new("Could not synchronize or restart #{@servers - servers_updated.join(',')}")
+          if server == @servers.last
+            if servers_updated.size == @servers.size
+              @trigger.clear
+            else
+              fail RestarterError.new("Could not synchronize or restart #{(@servers.map(&:address) - servers_updated).join(',')}")
+            end
           end
         rescue => e
-          tries += 1
-          tries <= 3 ? retry : next
+          next
         end
       end
     end

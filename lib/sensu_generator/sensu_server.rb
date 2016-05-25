@@ -36,10 +36,10 @@ module SensuGenerator
           logger.info "Sensu-server #{address} was successfully restarted"
           return true
         else
+          sleep 1
           if t == 10
             fail SensuServerError.new "Sensu-server #{address} restart FAILED"
           end
-          sleep 1
         end
       end
     rescue SensuServerError
