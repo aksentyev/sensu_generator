@@ -13,8 +13,12 @@ module SensuGenerator
 
     %w(debug info warn error fatal).each do |level|
       define_method(level) do |msg|
-        if @params[:notify_level] == level
-          Application.notifier.notify msg
+        begin
+          if @params[:notify_level] == level
+            Application.notifier.notify msg
+          end
+        rescue => e
+          super(e)
         end
         super(msg)
       end

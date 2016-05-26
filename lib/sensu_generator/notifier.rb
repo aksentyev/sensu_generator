@@ -9,7 +9,7 @@ module SensuGenerator
     end
 
     def notify(msg)
-      @notifier.ping msg if @notifier
+      @notifier.ping msg.to_s if @notifier
     end
   end
 end
