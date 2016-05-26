@@ -3,6 +3,9 @@
 SensuGenerator is an intermediate layer between Consul and Sensu. It helps to set up dynamic monitoring systems. It generates check configurations from ERB templates according to *tags* listed in the KV and Consul service properties. It watches for changes Consul services state and special key in the KV. It triggers the following:
 Sensu check configuration files are generated from the templates, the result will be synced via *rsync* and Sensu servers will be restarted using http Supervisord API. All files are generated when application starts and only changes will be processed.
 
+All service checks *tag* are stored in the Consul Key-Value storage in *service/kv_tags_path* path, default *kv_tags_path* is "checks". Tag is the beginning of a service check template name and should be specified as a part of the template name in the Consul KV storage. Note that value should be comma-separated tags list. Rsync repo shuold be named as sensu service name.
+
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -17,15 +20,13 @@ Install it yourself as:
 
 ## Usage
 
-sensu_generator start|stop|status -- [options]
-
-All service checks *tag* are stored in the Consul Key-Value storage in *service/checks* path. Tag is the beginning of a service check template name and should be specified as a part of name in the Consul KV storage. Note that value should be comma-separated tags list.
+sensu_generator start|stop|status|run -- [options]
 
 ##### Example:
 
 **consul_url***/kv/nginx/checks*
 ```
-[check-http, check-tcp]
+check-http, check-tcp
 ```
 
 Use ***svc*** (contains service data form consul) and ***check*** (contains *tag* name) in the ERB template.

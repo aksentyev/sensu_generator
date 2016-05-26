@@ -31,6 +31,7 @@ module SensuGenerator
                               symbolize_names: true
                             )
                           )
+                          
                 if result
                   write(dest, JSON.pretty_generate(result))
                   @trigger.touch
@@ -73,9 +74,7 @@ module SensuGenerator
     end
 
     def templates_for(check)
-      list = Dir.glob("#{File.expand_path(templates_dir)}/#{check}*")
-      logger.debug "Templates for #{check}: #{list.join(', ')}"
-      list
+      Dir.glob("#{File.expand_path(templates_dir)}/#{check}*")
     end
 
     def templates_dir

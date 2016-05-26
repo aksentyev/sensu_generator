@@ -45,10 +45,12 @@ module SensuGenerator
     end
 
     def need_to_apply_new_configs?
+      result = (@trigger.difference_between_touches > 120 || @trigger.last_touch_age > 120) && @trigger.modified_since_last_update?
       logger.debug "\n  Trigger:\n\tdifference_between_touches: #{@trigger.difference_between_touches}"\
                     "\n\tlast_touch_age: #{@trigger.last_touch_age}"\
-                    "\n\tmodified_since_last_update?: #{@trigger.modified_since_last_update?}"
-      (@trigger.difference_between_touches > 120 || @trigger.last_touch_age > 120) && @trigger.modified_since_last_update?
+                    "\n\tmodified_since_last_update?: #{@trigger.modified_since_last_update?}"\
+                    "\n\tNeeds to apply configuration to Sensu? #{result}"
+      result
     end
   end
 end

@@ -6,7 +6,7 @@ module SensuGenerator
     def initialize(name:)
       @name    = name
       @changed = true
-      @consul  = consul
+      super()
       all_properties
       self
     end
@@ -19,7 +19,7 @@ module SensuGenerator
     alias :get_all_properties :all_properties
 
     def get_checks
-      @checks ||= kv_svc_props(key: 'checks')
+      @checks ||= kv_svc_props(key: config.get[:kv_tags_path])
     end
 
     def get_props
@@ -42,12 +42,6 @@ module SensuGenerator
       @properties     = nil
       @checks         = nil
       @changed = false
-    end
-
-    private
-
-    def consul
-      @consul ||= Consul.new
     end
   end
 end

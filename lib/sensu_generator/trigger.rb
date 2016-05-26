@@ -3,8 +3,9 @@ module SensuGenerator
     attr_reader :last, :previous
 
     def initialize
-      @previous = Time.now.to_f
-      @last     = Time.now.to_f
+      init_value = Time.now.to_f
+      @previous = init_value
+      @last     = init_value
     end
 
     def touch

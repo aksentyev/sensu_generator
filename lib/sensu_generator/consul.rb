@@ -3,9 +3,9 @@ require 'diplomat'
 
 module SensuGenerator
   class Consul
-    attr_accessor :config
+    attr_writer :config, :logger
 
-    def initialize(config: Application.config)
+    def initialize
       @config = config
       Diplomat.configure do |consul|
         config.get[:consul].each do |k, v|
@@ -28,13 +28,13 @@ module SensuGenerator
       result.class == Array ? result.map {|el| el.remove_consul_indexes} : result.remove_consul_indexes
     end
 
-    def kv_svc_props(svc: self.name, key: nil)
+    def kv_svc_props(svc: name, key: nil)
       opts = key ? nil : {recurse: true}
       response = Diplomat::Kv.get("#{svc}/#{key}", opts)
       key ? JSON(response) : response # Maybe the feature of JSON check configuration will be implemented
     rescue
       if response
-        if response.match(/\s+/)
+        if response.match(/\s+/) || key.to_s == config.get[:kv_tags_path] # tags value is designed to be a list even if it has only one element
           response.gsub(/\s+/, '').split(',')
         else
           response
@@ -42,6 +42,16 @@ module SensuGenerator
       else
         []
       end
+    end
+
+    private
+
+    def config
+      @config ||= Application.config
+    end
+
+    def logger
+      @logger ||= Application.logger
     end
   end
 end

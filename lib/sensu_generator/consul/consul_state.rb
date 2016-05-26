@@ -1,10 +1,8 @@
 module SensuGenerator
   class ConsulState < Consul
-    def initialize(logger: Application.logger)
-      @logger = logger
-      @consul = consul
+    def initialize
       @actual_state = []
-
+      super()
       actualize
     end
 
@@ -14,7 +12,7 @@ module SensuGenerator
 
     def actualize
       reset
-      @svc_list_diff = @consul.services.map {|name, _| name.to_s } - @actual_state.map { |svc| svc.name.to_s}
+      @svc_list_diff = services.map {|name, _| name.to_s } - @actual_state.map { |svc| svc.name.to_s}
       @actual_state.each(&:update)
       @svc_list_diff.each do |name|
         @actual_state << ConsulService.new(name: name)
@@ -36,14 +34,6 @@ module SensuGenerator
     def reset
       @svc_changes = nil
       @svc_list_diff = nil
-    end
-
-    private
-
-    attr_reader :logger
-
-    def consul
-      @consul ||= Consul.new
     end
   end
 end

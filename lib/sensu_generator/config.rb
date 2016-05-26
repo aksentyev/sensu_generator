@@ -25,6 +25,7 @@ module SensuGenerator
                   :channel => nil,
                   :level => "error"
                 },
+                :kv_tags_path => "checks",
                 # See diplomat documentation to set proper consul parameters
                 :consul => {
                   :url => "http://consul.service.consul:8500"
