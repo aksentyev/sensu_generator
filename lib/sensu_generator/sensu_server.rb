@@ -38,7 +38,7 @@ module SensuGenerator
         else
           sleep 1
           if t == 10
-            fail SensuServerError.new "Sensu-server #{address} restart FAILED"
+            raise SensuServerError.new "Sensu-server #{address} restart FAILED"
           end
         end
       end
@@ -59,7 +59,7 @@ module SensuGenerator
           logger.info ("Sensu-server #{address}: #{msg}")
         else
           msg = "sync FAILED, out: #{res.inspect}"
-          fail SensuServerError.new("Sensu-server #{address}: #{msg}")
+          raise SensuServerError.new("Sensu-server #{address}: #{msg}")
         end
       rescue SensuServerError
         status = false

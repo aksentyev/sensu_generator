@@ -70,7 +70,7 @@ module SensuGenerator
       logger.debug "Processing template #{template}"
       ERB.new(File.read(template)).result(namespace)
     rescue ::Exception => e # Catch all ERB errors
-      fail GeneratorError.new("Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}")
+      raise GeneratorError.new("Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}")
     end
 
     def templates_for(check)
@@ -82,7 +82,7 @@ module SensuGenerator
     end
 
     def result_dir
-      fail GeneratorError.new("Result dir is not defined!") unless config.get[:result_dir]
+      raise GeneratorError.new("Result dir is not defined!") unless config.get[:result_dir]
       File.expand_path(config.get[:result_dir])
     end
 

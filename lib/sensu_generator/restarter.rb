@@ -21,7 +21,7 @@ module SensuGenerator
         begin
           if @servers.size < config.get[:sensu][:minimal_to_restart]
             msg = "Sensu-servers count < #{config.get[:sensu][:minimal_to_restart]}. Restart will not be performed. Next try after #{@delay + @delay_inc}s."
-            fail RestarterError.new(msg)
+            raise RestarterError.new(msg)
             @delay += @delay_inc if @delay < 3600
             sleep @delay
             break
@@ -35,7 +35,7 @@ module SensuGenerator
             if servers_updated.size == @servers.size
               @trigger.clear
             else
-              fail RestarterError.new("Could not synchronize or restart #{(@servers.map(&:address) - servers_updated).join(',')}")
+              raise RestarterError.new("Could not synchronize or restart #{(@servers.map(&:address) - servers_updated).join(',')}")
             end
           end
         rescue => e

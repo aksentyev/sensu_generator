@@ -46,7 +46,7 @@ module SensuGenerator
         sleep 60
       end
     rescue => e
-      fail ApplicationError.new("Restarter error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+      raise ApplicationError.new("Restarter error:\n\t #{e.to_s}\n\t #{e.backtrace}")
     end
 
     def run_generator
@@ -63,7 +63,7 @@ module SensuGenerator
         state.actualize
       end
     rescue => e
-      fail ApplicationError.new("Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+      raise ApplicationError.new("Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}")
     end
 
     def run
