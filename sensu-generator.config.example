@@ -13,8 +13,7 @@
   },
   "slack": {
     "url": "URL",
-    "channel": "sensu",
-    "level": "error"
+    "channel": "sensu"
   },
   "logger": {
     "notify_level": "error",
