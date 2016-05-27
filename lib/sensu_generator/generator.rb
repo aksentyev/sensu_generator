@@ -24,14 +24,14 @@ module SensuGenerator
             if check.class == String
               templates_for(check).each do |src|
                 file_name = "#{svc.name}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
-                dest = File.join(result_dir, file_name)
+                dest = File.join(config.result_dir, file_name)
                 result = merge_with_default_parameters(
                             JSON(
                               process(template: src, namespace: binding),
                               symbolize_names: true
                             )
                           )
-                          
+
                 if result
                   write(dest, JSON.pretty_generate(result))
                   @trigger.touch
@@ -52,7 +52,7 @@ module SensuGenerator
     end
 
     def flush_results
-      FileUtils.rm(Dir.glob("#{result_dir}/*"))
+      FileUtils.rm(Dir.glob(config.result_dir))
     end
 
     private
@@ -79,11 +79,6 @@ module SensuGenerator
 
     def templates_dir
       config.get[:templates_dir]
-    end
-
-    def result_dir
-      raise GeneratorError.new("Result dir is not defined!") unless config.get[:result_dir]
-      File.expand_path(config.get[:result_dir])
     end
 
     def write(dest, data)

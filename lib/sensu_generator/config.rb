@@ -44,5 +44,10 @@ module SensuGenerator
       custom = path ? JSON(File.read(path), :symbolize_names => true) : {}
       @config = @@default.deep_merge(custom)
     end
+
+    def result_dir
+      raise GeneratorError.new("Result dir is not defined!") unless get[:result_dir]
+      "#{File.expand_path(get[:result_dir])/*}"
+    end
   end
 end
