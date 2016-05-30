@@ -18,13 +18,15 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'diplomat'
-  spec.add_dependency 'slack-notifier'
-  spec.add_dependency 'ruby-supervisor'
-  spec.add_dependency 'rsync'
-  spec.add_dependency 'daemons'
+  spec.add_dependency "diplomat", "~> 0.17.0"
+  spec.add_dependency "slack-notifier", "~> 1.5.1"
+  spec.add_dependency "ruby-supervisor", "~> 0.0.2"
+  spec.add_dependency "rsync", "~> 1.0.9"
+  spec.add_dependency "daemons", "~> 1.2.3"
 
-  spec.add_development_dependency "pry"
+  spec.required_ruby_version = ">= 2.0.0"
+
+  spec.add_development_dependency "pry", "~> 0.10.3"
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
