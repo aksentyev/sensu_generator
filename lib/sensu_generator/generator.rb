@@ -52,7 +52,7 @@ module SensuGenerator
     end
 
     def flush_results
-      FileUtils.rm(Dir.glob(config.result_dir))
+      FileUtils.rm(Dir.glob("#{config.result_dir}/*"))
     end
 
     private

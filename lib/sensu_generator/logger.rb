@@ -15,6 +15,7 @@ module SensuGenerator
       define_method(level) do |msg|
         begin
           if @params[:notify_level] == level
+            self.debug "Notifying with msg: #{msg}"
             Application.notifier.notify msg
           end
         rescue => e
