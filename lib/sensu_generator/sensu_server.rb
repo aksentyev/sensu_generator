@@ -52,7 +52,7 @@ module SensuGenerator
 
     def sync
       begin
-        res = Rsync.run(config.result_dir, "rsync://#{address}/#{config.get[:sensu][:service]}", "--delete --recursive")
+        res = Rsync.run("#{config.result_dir}/", "rsync://#{address}/#{config.get[:sensu][:service]}", "--delete --recursive")
         status = res.success?
         if status
           msg = "synced"
