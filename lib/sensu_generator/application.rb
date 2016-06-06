@@ -58,6 +58,7 @@ module SensuGenerator
           generator.services = state.changes
           list = generator.generate!
           logger.info %Q(#{list.size} files processed: #{list.join(', ')})
+          trigger.touch if list.empty? && generator.services.any?{ |svc| svc.name == config[:sensu][:service] }
         end
         sleep 60
         state.actualize
