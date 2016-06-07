@@ -23,7 +23,7 @@ module SensuGenerator
     end
 
     def changed?
-      state = !@svc_list_diff.empty? || !changes.empty?
+      state = !(@svc_list_diff || []).empty? || !changes.empty?
       logger.debug "Consul state was changed: #{state.to_s}"
       state
     end
