@@ -54,7 +54,7 @@ module SensuGenerator
       generator.flush_results
       loop do
         logger.info 'Generator is alive!'
-        if state.changed?
+        if state.changed? && state.actualized?
           generator.services = state.changes
           list = generator.generate!
           logger.info %Q(#{list.size} files processed: #{list.join(', ')})

@@ -17,6 +17,7 @@ module SensuGenerator
       @svc_list_diff.each do |name|
         @actual_state << ConsulService.new(name: name)
       end
+      @actualized = true
       logger.debug "Services actualized list: #{@actual_state.map { |svc| svc.name.to_s} }"
       self
     end
@@ -32,8 +33,13 @@ module SensuGenerator
     end
 
     def reset
+      @actualized = false
       @svc_changes = nil
       @svc_list_diff = nil
+    end
+
+    def actualized?
+      @actualized ? true : false # For the case when nil
     end
   end
 end
