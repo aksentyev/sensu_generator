@@ -63,4 +63,4 @@ NOTE There are no tests for this ~~legacy shit~~ application.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/sensu_generator. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the
+Bug reports and pull requests are welcome on GitHub at https://github.com/aksentyev/sensu_generator. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the
