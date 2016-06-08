@@ -52,6 +52,7 @@ module SensuGenerator
     def run_generator
       logger.info "Starting generator..."
       generator.flush_results
+      state = ConsulState.new
       loop do
         logger.info 'Generator is alive!'
         if state.changed? && state.actualized?
@@ -98,10 +99,6 @@ module SensuGenerator
 
     def generator
       @generator ||= Generator.new(trigger: trigger)
-    end
-
-    def state
-      @state ||= ConsulState.new
     end
 
     def restarter
