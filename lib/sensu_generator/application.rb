@@ -21,7 +21,7 @@ module SensuGenerator
       @@logger = logger
       @@notifier = notifier
       @@config  = config
-      logger.info "Starting application..."
+      logger.info "Starting application #{VERSION}v..."
     end
 
     def logger
