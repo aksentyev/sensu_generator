@@ -11,6 +11,7 @@ module SensuGenerator
                   },
                   :minimal_to_restart => 2,
                   :service => "sensu-server",
+                  :rsync_repo => "sensu-server",
                   :supervisor => {:user => "", :password => ""},
                 },
                 :result_dir => "work/result",
