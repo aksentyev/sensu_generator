@@ -1,3 +1,4 @@
+require 'socket'
 require 'json'
 
 module SensuGenerator
@@ -13,6 +14,11 @@ module SensuGenerator
                   :service => "sensu-server",
                   :rsync_repo => "sensu-server",
                   :supervisor => {:user => "", :password => ""},
+                },
+                :mode => 'server',
+                :server => {
+                  :addr => '',
+                  :port => nil
                 },
                 :result_dir => "work/result",
                 :templates_dir => "work/templates",
@@ -49,6 +55,10 @@ module SensuGenerator
     def result_dir
       raise GeneratorError.new("Result dir is not defined!") unless get[:result_dir]
       File.expand_path(get[:result_dir])
+    end
+
+    def file_prefix
+      @file_prefix ||= get[:mode] == 'server' ? "local" : Socket.gethostname
     end
   end
 end

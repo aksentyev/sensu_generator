@@ -5,13 +5,13 @@ module SensuGenerator
   class Restarter
     attr_accessor :logger, :config
 
-    def initialize(trigger:, servers:, logger: Application.logger, config: Application.config)
+    def initialize(servers)
       @delay = 0
       @delay_inc = 600
-      @config = config
-      @trigger = trigger
+      @config  = Application.config
+      @trigger = Application.trigger
+      @logger  = Application.logger
       @servers = servers
-      @logger = logger
     end
 
     def perform_restart

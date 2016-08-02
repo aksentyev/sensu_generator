@@ -14,13 +14,19 @@ module SensuGenerator
       def config
         @@config
       end
+
+      def trigger
+        @@trigger
+      end
     end
 
-    def initialize(config:, logger:, notifier:)
-      @threads = []
-      @@logger = logger
+    def initialize(config:, logger:, notifier:, trigger:)
+      @@logger   = logger
       @@notifier = notifier
-      @@config  = config
+      @@config   = config
+      @@trigger  = trigger
+      @threads = []
+
       logger.info "Starting application #{VERSION}v..."
     end
 
@@ -34,6 +40,10 @@ module SensuGenerator
 
     def config
       @@config
+    end
+
+    def trigger
+      @@trigger
     end
 
     def run_restarter
@@ -71,8 +81,17 @@ module SensuGenerator
       raise ApplicationError.new("Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}")
     end
 
+    def run_server
+      server = Server.new
+    rescue => e
+      server&.close
+      raise ApplicationError.new("Server error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+    end
+
     def run
-      %w(generator restarter).each do |thr|
+      threads = %w(generator restarter)
+      threads << 'server' if config.get[:mode] == 'server' && config.get[:server][:port]
+      threads.each do |thr|
         @threads << run_thread(thr)
       end
 
@@ -89,22 +108,19 @@ module SensuGenerator
     end
 
     private
-    def trigger
-      @trigger ||= Trigger.new
-    end
 
     def consul
       @consul ||= Consul.new
     end
 
     def generator
-      @generator ||= Generator.new(trigger: trigger)
+      @generator ||= Generator.new
     end
 
     def restarter
       list = consul.sensu_servers
       logger.info "Sensu servers discovered: #{list.map(&:address).join(', ')}"
-      Restarter.new(trigger: trigger, servers: list)
+      Restarter.new(list)
     end
 
     def run_thread(name)

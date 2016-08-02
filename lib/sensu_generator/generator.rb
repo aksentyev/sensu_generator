@@ -4,15 +4,16 @@ require 'fileutils'
 
 module SensuGenerator
   class Generator
-    def initialize(trigger:, services: [], config: Application.config, logger: Application.logger)
-      @trigger  = trigger
+    def initialize(services = [])
       @services = services
-      @config   = config
-      @logger   = logger
+      @config  = Application.config
+      @trigger = Application.trigger
+      @logger  = Application.logger
     end
 
     attr_writer :services
     attr_accessor :logger, :config
+    attr_reader :connection
 
     def generate!
       @processed_files = []
@@ -23,19 +24,17 @@ module SensuGenerator
           begin
             if check.class == String
               templates_for(check).each do |src|
-                file_name = "#{svc.name}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
-                dest = File.join(config.result_dir, file_name)
+                filename = config.file_prefix + "#{svc.name}-#{File.basename(src).gsub(/\.(?:.*)/, '.json')}"
                 result = merge_with_default_parameters(
-                            JSON(
+                            JSON.parse(
                               process(template: src, namespace: binding),
                               symbolize_names: true
                             )
                           )
 
                 if result
-                  write(dest, JSON.pretty_generate(result))
-                  @trigger.touch
-                  @processed_files << file_name
+                  write(filename: filename, data: result)
+                  @processed_files << filename
                 end
               end
             else
@@ -52,7 +51,7 @@ module SensuGenerator
     end
 
     def flush_results
-      FileUtils.rm(Dir.glob("#{config.result_dir}/*"))
+      CheckFile.remove_all_with(config.file_prefix)
     end
 
     private
@@ -81,10 +80,17 @@ module SensuGenerator
       config.get[:templates_dir]
     end
 
-    def write(dest, data)
-      file = File.open(dest, 'w+')
-      file.write(data)
-      file.close
+    def write(filename:, data:)
+      if config.get[:mode] == 'server'
+        CheckFile.new(filename).write(data)
+      else
+        json = JSON.fast_generate({ :filename => filename, :data => data })
+        connection.write_file(json)
+      end
+    end
+
+    def connection
+      @connection ||= Client.new
     end
   end
 end

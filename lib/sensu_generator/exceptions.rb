@@ -1,5 +1,5 @@
 module SensuGenerator
-  %w(ApplicationError RestarterError GeneratorError SensuServerError).each do |e|
+  %w(ApplicationError RestarterError GeneratorError SensuServerError ClientError ServerError).each do |e|
     eval(
       %Q(
         class #{e} < StandardError

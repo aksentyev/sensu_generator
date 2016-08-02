@@ -37,8 +37,9 @@ module SensuGenerator
       logger       = Logger.new(config.get[:logger])
       logger.level = eval("Logger::#{config.get[:logger][:log_level].upcase}")
       notifier     = Notifier.new(config.get[:slack])
+      trigger      = Trigger.new
 
-      Application.new(config: config, logger: logger, notifier: notifier).run
+      Application.new(config: config, logger: logger, notifier: notifier, trigger: trigger).run
     rescue => e
       msg = %("Sensu_generator exited with non-zero code.\n #{e.to_s} \n#{e.backtrace.join("\n\t")}")
       Logger.new(file: STDOUT).fatal msg
