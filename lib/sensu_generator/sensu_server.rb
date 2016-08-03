@@ -56,10 +56,10 @@ module SensuGenerator
         status = res.success?
         if status
           msg = "synced"
-          logger.info ("Sensu-server #{address}: #{msg}")
+          logger.info "Sensu-server #{address}: #{msg}"
         else
           msg = "sync FAILED, out: #{res.inspect}"
-          raise SensuServerError.new("Sensu-server #{address}: #{msg}")
+          raise SensuServerError.new "Sensu-server #{address}: #{msg}"
         end
       rescue SensuServerError
         status = false
