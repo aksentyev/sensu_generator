@@ -5,6 +5,7 @@ Sensu check configuration files are generated from the templates, the result wil
 
 All service checks *tag* are stored in the Consul Key-Value storage in *service/kv_tags_path* path, default *kv_tags_path* is "checks". Tag is the beginning of a service check template name and should be specified as a part of the template name in the Consul KV storage. Note that value should be comma-separated tags list. Rsync repo shuold be named as sensu service name.
 
+It can can be used master server with multiple clients which send processed templates via tcp.
 
 ## Installation
 
@@ -35,8 +36,6 @@ If key is not specified it will be requested the whole ***svc/*** folder.
 
 Use Slack as notifier if you want.
 
-Use *sensu-generator.config.example* to make your own.
-
 ##### Check ERB template example:
 
 ```
@@ -57,7 +56,29 @@ Use *sensu-generator.config.example* to make your own.
 
 ```
 
-NOTE There are no tests for this ~~legacy shit~~ application.
+## Configuration
+
+##### server configuration:
+
+```
+"mode": "server",
+"server": {
+  "addr": "", //ip address to listen or left it empty to listen on 0.0.0.0
+  "port": 12345 //listen port
+}
+```
+
+##### client configuration:
+
+```
+"mode": "client",
+"server": {
+  "addr": "", //ip address or domain to connect to
+  "port": 12345 //server port
+}
+```
+
+See *sensu-generator.config.example* for more information.
 
 ## Development
 
