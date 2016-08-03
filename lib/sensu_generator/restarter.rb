@@ -39,6 +39,7 @@ module SensuGenerator
             end
           end
         rescue => e
+          logger.error "Restarter error: #{e.inspect} #{e.backtrace}"
           next
         end
       end

@@ -42,7 +42,7 @@ module SensuGenerator
               # Implement json parameters parsing
             end
           rescue => e
-            logger.error e
+            logger.warn e
             next
           end
         end
@@ -82,7 +82,7 @@ module SensuGenerator
 
     def write(filename:, data:)
       if config.get[:mode] == 'server'
-        CheckFile.new(filename).write(data)
+        CheckFile.new(filename).write(JSON.pretty_generate(data))
       else
         json = JSON.fast_generate({ :filename => filename, :data => data })
         cl = Client.new
