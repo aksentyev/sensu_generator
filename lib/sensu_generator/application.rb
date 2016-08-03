@@ -89,7 +89,7 @@ module SensuGenerator
     def run
       logger.info "Starting application #{VERSION}v in #{config.get[:mode]} mode"
       threads = %w(generator)
-      if config.get[:mode] == 'server' && config.get[:server][:port]
+      if config.get[:mode] == 'server'
         threads << 'restarter'
         threads << 'server' if config.get[:server][:port]
       end
