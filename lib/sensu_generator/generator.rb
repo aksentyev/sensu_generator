@@ -69,7 +69,7 @@ module SensuGenerator
       logger.debug "Processing template #{template}"
       ERB.new(File.read(template)).result(namespace)
     rescue ::Exception => e # Catch all ERB errors
-      raise GeneratorError.new("Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}")
+      raise GeneratorError.new "Failed to process ERB file #{template}.\n #{e.to_s} \n#{e.backtrace}"
     end
 
     def templates_for(check)
@@ -85,12 +85,13 @@ module SensuGenerator
         CheckFile.new(filename).write(data)
       else
         json = JSON.fast_generate({ :filename => filename, :data => data })
-        connection.write_file(json)
+        cl = Client.new
+        cl.write_file(json)
+        cl.close
       end
-    end
-
-    def connection
-      @connection ||= Client.new
+    rescue
+      sleep 1
+      retry
     end
   end
 end

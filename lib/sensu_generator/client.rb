@@ -5,7 +5,7 @@ module SensuGenerator
   class Client
     def initialize
       @logger = Application.logger
-      connect
+      connection
     end
 
     attr_reader :config, :logger
@@ -25,20 +25,19 @@ module SensuGenerator
 
     def write_file(data)
       connection.puts data
+      logger.info "Client: data transferred successfully"
+      true
     rescue => e
-      logger.error "Client: write failed #{e.inspect} #{e.backtrace}\n"
       close
-      sleep 1
-      retry
+      raise ClientError.new "Client: write failed #{e.inspect} #{e.backtrace}\n"
     end
 
     def flush_results
       connection.puts JSON.fast_generate({"FLUSH_WITH_PREFIX" => "#{config.file_prefix}" })
     rescue => e
-      logger.error "Client: write failed #{e.inspect} #{e.backtrace}\n"
       close
-      sleep 1
-      retry
+      raise ClientError.new "Client: write failed #{e.inspect} #{e.backtrace}\n"
+      close
     end
 
     def close

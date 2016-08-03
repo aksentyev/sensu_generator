@@ -58,7 +58,7 @@ module SensuGenerator
     end
 
     def file_prefix
-      @file_prefix ||= get[:mode] == 'server' ? "local" : Socket.gethostname
+      @file_prefix ||= get[:mode] == 'server' ? "local_" : "#{Socket.gethostname}_"
     end
   end
 end

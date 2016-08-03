@@ -18,15 +18,26 @@ module SensuGenerator
       logger.info "Server: started server on #{@server.addr}"
 
       loop do
-        client = @server.accept
-        data = client.gets
-        client.close
-        process data
+        Thread.start(@server.accept) do |client|
+          begin
+            client = @server.accept
+            logger.info "Server: client #{client.inspect} connected"
+            data = client.gets
+            process data
+            client.close
+          rescue => e
+            client&.close
+            raise ServerError.new "Server: error occured #{e.inspect} #{e.backtrace}\n"
+          end
+        end
       end
+    rescue
+      close
     end
 
     def close
       @server.close
+      @server = nil
     end
 
     private
@@ -42,7 +53,7 @@ module SensuGenerator
         data     = JSON.pretty_generate hash['data']
 
         logger.info "Server: received file #{filename}"
-        CheckFile.new(filename: filename).write(data)
+        CheckFile.new(filename).write(data)
       end
     end
 

@@ -26,8 +26,6 @@ module SensuGenerator
       @@config   = config
       @@trigger  = trigger
       @threads = []
-
-      logger.info "Starting application #{VERSION}v..."
     end
 
     def logger
@@ -89,8 +87,12 @@ module SensuGenerator
     end
 
     def run
-      threads = %w(generator restarter)
-      threads << 'server' if config.get[:mode] == 'server' && config.get[:server][:port]
+      logger.info "Starting application #{VERSION}v in #{config.get[:mode]} mode"
+      threads = %w(generator)
+      if config.get[:mode] == 'server' && config.get[:server][:port]
+        threads << 'restarter'
+        threads << 'server' if config.get[:server][:port]
+      end
       threads.each do |thr|
         @threads << run_thread(thr)
       end
