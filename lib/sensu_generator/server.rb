@@ -21,7 +21,7 @@ module SensuGenerator
         Thread.start(@server.accept) do |client|
           begin
             client = @server.accept
-            logger.info "Server: client #{client.inspect} connected"
+            logger.info "Server: client #{client.addr} connected"
             data = client.gets
             process data
             client.close
