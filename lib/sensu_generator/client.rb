@@ -5,6 +5,7 @@ module SensuGenerator
   class Client
     def initialize
       @logger = Application.logger
+      @config = Application.config
       connection
     end
 
@@ -47,10 +48,6 @@ module SensuGenerator
     end
 
     private
-
-    def config
-      Application.config
-    end
 
     def server_addr
       @server_addr ||= config.get[:server][:addr]

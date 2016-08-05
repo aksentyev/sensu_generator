@@ -17,12 +17,11 @@ module SensuGenerator
       @server = TCPServer.new(server_addr, server_port)
       logger.info "Server: started server on #{@server.addr}"
 
-      loop do
-        Thread.start(@server.accept) do |client|
+      while client = @server.accept
+        logger.info "Server: client #{client.addr} connected"
+        Thread.start(client) do
           begin
-            client = @server.accept
-            logger.info "Server: client #{client.addr} connected"
-            data = client.gets
+            data = client.read
             process data
             client.close
           rescue => e
