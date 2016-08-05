@@ -44,10 +44,10 @@ module SensuGenerator
     def process(data)
       hash = JSON.parse data
 
-      if hash.key?? 'FLUSH_WITH_PREFIX'
+      if hash.key? 'FLUSH_WITH_PREFIX'
         logger.info "Server: removing files with prefix #{hash['FLUSH_WITH_PREFIX']}"
         CheckFile.remove_all_with(hash['FLUSH_WITH_PREFIX'])
-      elsif hash.key?? 'filename'
+      elsif hash.key? 'filename'
         filename = hash['filename']
         data     = JSON.pretty_generate hash['data']
 
