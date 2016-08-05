@@ -55,6 +55,8 @@ module SensuGenerator
         logger.info "Server: received file #{filename}"
         CheckFile.new(filename).write(data)
       end
+    rescue
+      logger.info "Server: not json data received. Ignoring."
     end
 
     def server_port
