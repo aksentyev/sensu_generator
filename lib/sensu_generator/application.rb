@@ -59,7 +59,7 @@ module SensuGenerator
 
     def run_generator
       logger.info "Starting generator..."
-      generator.flush_results
+      generator.flush_results if config.get[:mode] == 'server'
       state = ConsulState.new
       loop do
         logger.info 'Generator is alive!'
@@ -67,7 +67,7 @@ module SensuGenerator
           generator.services = state.changes
           list = generator.generate!
           logger.info %Q(#{list.size} files processed: #{list.join(', ')})
-          if list.empty? && state.changes.any?{ |svc| svc.name == config.get[:sensu][:service] }
+          if config.get[:mode] == 'server' list.empty? && state.changes.any?{ |svc| svc.name == config.get[:sensu][:service] }
             logger.info "Sensu-server service state was changed"
             trigger.touch
           end
