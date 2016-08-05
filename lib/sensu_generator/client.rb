@@ -21,7 +21,7 @@ module SensuGenerator
       logger.info "Client: connected"
       s
     rescue => e
-      raise ClientError.new "Client: connection failed #{e.inspect} #{e.backtrace}\n"
+      raise ClientError, "Client: connection failed #{e.inspect} #{e.backtrace}\n"
     end
 
     def write_file(data)
@@ -30,14 +30,14 @@ module SensuGenerator
       true
     rescue => e
       close
-      raise ClientError.new "Client: write failed #{e.inspect} #{e.backtrace}\n"
+      raise ClientError, "Client: write failed #{e.inspect} #{e.backtrace}\n"
     end
 
     def flush_results
       connection.puts JSON.fast_generate({"FLUSH_WITH_PREFIX" => "#{config.file_prefix}" })
     rescue => e
       close
-      raise ClientError.new "Client: write failed #{e.inspect} #{e.backtrace}\n"
+      raise ClientError, "Client: write failed #{e.inspect} #{e.backtrace}\n"
       close
     end
 

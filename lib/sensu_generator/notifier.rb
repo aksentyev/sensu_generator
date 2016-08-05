@@ -3,7 +3,7 @@ require 'slack-notifier'
 module SensuGenerator
   class Notifier
     def initialize(params = {})
-      @notifier = if !params.any? {|k,v| v == "" || v.nil?}
+      @notifier = if !params.any? { |k,v| v == "" || v.nil? }
                     Slack::Notifier.new(params[:url], channel: params[:channel])
                   end
     end

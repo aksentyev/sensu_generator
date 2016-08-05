@@ -26,7 +26,7 @@ module SensuGenerator
             client.close
           rescue => e
             client&.close
-            raise ServerError.new "Server: error occured #{e.inspect} #{e.backtrace}\n"
+            raise ServerError, "Server: error occured #{e.inspect} #{e.backtrace}\n"
           end
         end
       end
@@ -44,10 +44,10 @@ module SensuGenerator
     def process(data)
       hash = JSON.parse data
 
-      if hash.has_key? 'FLUSH_WITH_PREFIX'
+      if hash.key?? 'FLUSH_WITH_PREFIX'
         logger.info "Server: removing files with prefix #{hash['FLUSH_WITH_PREFIX']}"
         CheckFile.remove_all_with(hash['FLUSH_WITH_PREFIX'])
-      elsif hash.has_key? 'filename'
+      elsif hash.key?? 'filename'
         filename = hash['filename']
         data     = JSON.pretty_generate hash['data']
 

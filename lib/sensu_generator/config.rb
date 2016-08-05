@@ -53,7 +53,7 @@ module SensuGenerator
     end
 
     def result_dir
-      raise GeneratorError.new("Result dir is not defined!") unless get[:result_dir]
+      raise(GeneratorError, "Result dir is not defined!") unless get[:result_dir]
       File.expand_path(get[:result_dir])
     end
 

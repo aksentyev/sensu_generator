@@ -15,9 +15,9 @@ module SensuGenerator
     def process
       unless @process
         client = RubySupervisor::Client.new(address, 9001,
-            user: config.get[:sensu][:supervisor][:user],
-            password: config.get[:sensu][:supervisor][:password]
-          )
+                                              user: config.get[:sensu][:supervisor][:user],
+                                              password: config.get[:sensu][:supervisor][:password]
+                                            )
         @process = client.process('sensu-server')
       end
       @process
@@ -38,7 +38,7 @@ module SensuGenerator
         else
           sleep 1
           if t == 10
-            raise SensuServerError.new "Sensu-server #{address} restart FAILED"
+            raise SensuServerError, "Sensu-server #{address} restart FAILED"
           end
         end
       end
@@ -59,7 +59,7 @@ module SensuGenerator
           logger.info "Sensu-server #{address}: #{msg}"
         else
           msg = "sync FAILED, out: #{res.inspect}"
-          raise SensuServerError.new "Sensu-server #{address}: #{msg}"
+          raise SensuServerError, "Sensu-server #{address}: #{msg}"
         end
       rescue SensuServerError
         status = false

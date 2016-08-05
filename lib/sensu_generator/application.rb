@@ -54,7 +54,7 @@ module SensuGenerator
         sleep 60
       end
     rescue => e
-      raise ApplicationError.new("Restarter error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+      raise ApplicationError, "Restarter error:\n\t #{e.to_s}\n\t #{e.backtrace}"
     end
 
     def run_generator
@@ -66,8 +66,8 @@ module SensuGenerator
         if state.changed? && state.actualized?
           generator.services = state.changes
           list = generator.generate!
-          logger.info %Q(#{list.size} files processed: #{list.join(', ')})
-          if config.get[:mode] == 'server' && list.empty? && state.changes.any?{ |svc| svc.name == config.get[:sensu][:service] }
+          logger.info "#{list.size} files processed: #{list.join(', ')}"
+          if config.get[:mode] == 'server' && list.empty? && state.changes.any? { |svc| svc.name == config.get[:sensu][:service] }
             logger.info "Sensu-server service state was changed"
             trigger.touch
           end
@@ -76,14 +76,14 @@ module SensuGenerator
         state.actualize
       end
     rescue => e
-      raise ApplicationError.new("Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+      raise ApplicationError, "Generator error:\n\t #{e.to_s}\n\t #{e.backtrace}"
     end
 
     def run_server
       server = Server.new
     rescue => e
       server&.close
-      raise ApplicationError.new("Server error:\n\t #{e.to_s}\n\t #{e.backtrace}")
+      raise ApplicationError, "Server error:\n\t #{e.to_s}\n\t #{e.backtrace}"
     end
 
     def run
